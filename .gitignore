@@ -1,0 +1,6 @@
+vendor/
+data/postgres_db
+.DS_Store
+.vscode
+.data
+.env

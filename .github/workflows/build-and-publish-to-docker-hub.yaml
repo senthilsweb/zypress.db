@@ -1,0 +1,41 @@
+name: 'zypressDB - GitHub Actions'
+
+on:
+  push:
+    tags-ignore:
+    - '**'
+    branches:
+    - main
+
+env:
+  project: 'zypressDB'
+  NAME   : 'senthilsweb/zypressdb'
+
+jobs:
+  docker:
+    name: 'Build & Deploy'
+    runs-on: ubuntu-latest
+    steps:
+      - name: 'Checkout'
+        uses: actions/checkout@v2
+
+      - name: Declare some variables
+        id: vars
+        shell: bash
+        run: |
+          echo "##[set-output name=branch;]$(echo ${GITHUB_REF#refs/heads/})"
+          echo "::set-output name=sha_short::$(git rev-parse --short HEAD)"
+
+      - name: Another step
+        run: |
+          echo "Branch: ${{ steps.vars.outputs.branch }}"
+          echo "Sha: ${{ steps.vars.outputs.sha_short }}"
+
+      - name: Build and push
+        id: docker_build
+        uses: docker/build-push-action@v1
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+          repository: ${{env.NAME}}
+          tags: latest,${{ steps.vars.outputs.sha_short }}
